@@ -5642,7 +5642,8 @@
           thickness,
           speeds,
           toolAssignment,
-          allOperations
+          allOperations,
+          baseNumber
         );
 
         program += `%`;
@@ -5656,12 +5657,14 @@
         thickness,
         speeds,
         toolAssignment,
-        allOperations
+        allOperations,
+        baseNumber = 1000
       ) {
         console.log("📝 Generating subroutines...");
         let subroutines = "";
-        // Center drill subroutine number should match operationNumber from main program
-        let subNumber = 1010;
+        // Center drill subroutine number should match operationNumber from main program (dynamic)
+        let subNumber = baseNumber + 10;
+        console.log(`📊 Subroutine base: ${baseNumber}, Starting at O${subNumber}`);
 
         // Center drill subroutine
         // Center drill subroutine - ONLY if holes are present
