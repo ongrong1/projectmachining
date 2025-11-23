@@ -473,12 +473,15 @@
         <h3>部品情報 (Part Information)</h3>
         <div class="part-info">
           <label for="program_number">プログラム番号:</label>
-          <input
-            type="text"
-            id="program_number"
-            placeholder="O1000"
-            value="O1000"
-          />
+          <select id="program_number">
+            <option value="O1000">O1000</option>
+            <option value="O2000">O2000</option>
+            <option value="O3000">O3000</option>
+            <option value="O4000">O4000</option>
+            <option value="O5000">O5000</option>
+            <option value="O6000">O6000</option>
+            <option value="O7000">O7000</option>
+          </select>
 
           <label for="part_name">部品名称:</label>
           <input
@@ -1583,7 +1586,11 @@
         console.log(`📝 Program: ${programNumber}(${partName})`);
 
         let program = `${programNumber}(${partName})\n`;
-        let operationNumber = 1010;
+
+        // Extract base number from program number (O1000 → 1000, O2000 → 2000)
+        const baseNumber = parseInt(programNumber.replace('O', '')) || 1000;
+        let operationNumber = baseNumber + 10;
+        console.log(`📊 Base number: ${baseNumber}, Starting operation: O${operationNumber}`);
 
         // Create tool assignment
         const toolAssignment = createToolAssignment(processes);
@@ -1644,11 +1651,11 @@
         console.log(`   - Mixed: ${programType.mixed}`);
         console.log(`   - Chamfer Only: ${programType.chamferOnly}`);
 
-        let opNum = hasAnyHoles ? 1020 : 1010; // Start main operations
+        let opNum = hasAnyHoles ? baseNumber + 20 : baseNumber + 10; // Start main operations (dynamic based on program number)
         console.log(
-          `📊 Operation numbering: Starting at ${opNum} (${
+          `📊 Operation numbering: Starting at O${opNum} (${
             hasAnyHoles ? "mixed" : "milling-only"
-          } program)`
+          } program, base: ${baseNumber})`
         );
 
         // ===== MIXED PROGRAM OPERATION SEQUENCING =====
