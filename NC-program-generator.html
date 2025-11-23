@@ -5703,7 +5703,7 @@
                 M20: 6.0,
               };
               subroutines += `Z-${drillData[process.size]}L0\n`;
-              subroutines += `M98P${1001 + index}(${process.size})\n`;
+              subroutines += `M98P${baseNumber + 1 + index}(${process.size})\n`;
             });
 
           processes
@@ -5713,7 +5713,7 @@
                 (p) => p.type === "threaded"
               ).length;
               subroutines += `Z-1.4L0\n`;
-              subroutines += `M98P${1001 + offset + index}(${process.size})\n`;
+              subroutines += `M98P${baseNumber + 1 + offset + index}(${process.size})\n`;
             });
 
           processes
@@ -5723,7 +5723,7 @@
                 processes.filter((p) => p.type === "threaded").length +
                 processes.filter((p) => p.type === "precision").length;
               subroutines += `Z-2.3L0\n`;
-              subroutines += `M98P${1001 + offset + index}(${process.size})\n`;
+              subroutines += `M98P${baseNumber + 1 + offset + index}(${process.size})\n`;
             });
 
           processes
@@ -5734,7 +5734,7 @@
                 processes.filter((p) => p.type === "precision").length +
                 processes.filter((p) => p.type === "counterbore").length;
               subroutines += `Z-3.0L0\n`;
-              subroutines += `M98P${1001 + offset + index}(${process.size})\n`;
+              subroutines += `M98P${baseNumber + 1 + offset + index}(${process.size})\n`;
             });
 
           // Add nagaana center drill calls
@@ -5746,7 +5746,7 @@
                 processes.filter((p) => p.type === "precision").length +
                 processes.filter((p) => p.type === "counterbore").length +
                 processes.filter((p) => p.type === "through").length;
-              const nagaanaSubNumber = 1001 + nagaanaOffset + index;
+              const nagaanaSubNumber = baseNumber + 1 + nagaanaOffset + index;
               console.log(
                 `  📍 Nagaana center drill call: M98P${nagaanaSubNumber}(${process.size}) - offset=${nagaanaOffset}, index=${index}`
               );
@@ -5763,7 +5763,7 @@
                 processes.filter((p) => p.type === "precision").length +
                 processes.filter((p) => p.type === "counterbore").length +
                 processes.filter((p) => p.type === "through").length;
-              const preholeSubNumber = 1001 + preholeOffset + index;
+              const preholeSubNumber = baseNumber + 1 + preholeOffset + index;
               console.log(
                 `  📍 Prehole center drill call: M98P${preholeSubNumber}(PREHOLE) - offset=${preholeOffset}, index=${index}`
               );
@@ -6163,7 +6163,7 @@
                     M20: 4.5,
                   };
                   subroutines += `Z-${drillData[process.size]}L0\n`;
-                  subroutines += `M98P${1001 + index}(${process.size})\n`;
+                  subroutines += `M98P${baseNumber + 1 + index}(${process.size})\n`;
                 });
 
               // Add position calls for each precision hole
@@ -6186,7 +6186,7 @@
                   const chamferDepth =
                     precisionChamferData[process.size] || 1.4; // Default fallback
                   subroutines += `Z-${chamferDepth}L0\n`;
-                  subroutines += `M98P${1001 + threadedOffset + index}(${
+                  subroutines += `M98P${baseNumber + 1 + threadedOffset + index}(${
                     process.size
                   })\n`;
                 });
@@ -6208,7 +6208,7 @@
                   };
                   const chamferDepth = cbChamferData[process.size] || 2.3; // Default fallback
                   subroutines += `Z-${chamferDepth}L0\n`;
-                  subroutines += `M98P${1001 + precisionOffset + index}(${
+                  subroutines += `M98P${baseNumber + 1 + precisionOffset + index}(${
                     process.size
                   })\n`;
                 });
@@ -6225,12 +6225,12 @@
                     // φ/2 chamfer depth for holes ≤φ11
                     const chamferDepth = (throughSize / 2).toFixed(1);
                     subroutines += `Z-${chamferDepth}L0\n`;
-                    subroutines += `M98P${1001 + throughOffset + index}(${
+                    subroutines += `M98P${baseNumber + 1 + throughOffset + index}(${
                       process.size
                     })\n`;
                   } else {
                     // Just placeholder for holes >φ11 (no Z- depth)
-                    subroutines += `M98P${1001 + throughOffset + index}(${
+                    subroutines += `M98P${baseNumber + 1 + throughOffset + index}(${
                       process.size
                     })\n`;
                   }
@@ -6267,7 +6267,7 @@
           const index = processes
             .filter((p) => p.type === "threaded")
             .findIndex((p) => p.size === operation.size);
-          const subNumber = 1001 + index;
+          const subNumber = baseNumber + 1 + index;
           console.log(`  ➡️ THREADED: ${operation.size} → O${subNumber}`);
           return subNumber;
         } else if (operation.processType === "precision") {
@@ -6275,7 +6275,7 @@
           const index = processes
             .filter((p) => p.type === "precision")
             .findIndex((p) => p.size === operation.size);
-          const subNumber = 1001 + offset + index;
+          const subNumber = baseNumber + 1 + offset + index;
           console.log(
             `  ➡️ PRECISION: ${operation.size} → O${subNumber} (offset=${offset})`
           );
@@ -6287,7 +6287,7 @@
           const index = processes
             .filter((p) => p.type === "counterbore")
             .findIndex((p) => p.size === operation.size);
-          const subNumber = 1001 + offset + index;
+          const subNumber = baseNumber + 1 + offset + index;
           console.log(
             `  ➡️ COUNTERBORE: ${operation.size} → O${subNumber} (offset=${offset})`
           );
@@ -6300,7 +6300,7 @@
           const index = processes
             .filter((p) => p.type === "through")
             .findIndex((p) => p.size === operation.size);
-          const subNumber = 1001 + offset + index;
+          const subNumber = baseNumber + 1 + offset + index;
           console.log(
             `  ➡️ THROUGH: ${operation.size} → O${subNumber} (offset=${offset})`
           );
@@ -6320,7 +6320,7 @@
           const index = processes
             .filter((p) => p.type === "nagaana")
             .findIndex((p) => p.size === operation.size);
-          const subNumber = 1001 + offset + index;
+          const subNumber = baseNumber + 1 + offset + index;
           console.log(
             `  ➡️ NAGAANA POSITION: ${operation.size} → O${subNumber} (offset=${offset})`
           );
@@ -6335,7 +6335,7 @@
           const index = processes
             .filter((p) => p.type === "prehole")
             .findIndex((p) => p.size === operation.size);
-          const subNumber = 1001 + offset + index;
+          const subNumber = baseNumber + 1 + offset + index;
           console.log(
             `  ➡️ PREHOLE: ${operation.size} → O${subNumber} (offset=${offset})`
           );
@@ -6351,7 +6351,7 @@
           const index = processes
             .filter((p) => p.type === "rough10")
             .findIndex((p) => p.size === operation.size);
-          const subNumber = 1001 + offset + index;
+          const subNumber = baseNumber + 1 + offset + index;
           console.log(
             `  ➡️ ROUGH10: ${operation.size} → O${subNumber} (offset=${offset})`
           );
@@ -6368,7 +6368,7 @@
           const index = processes
             .filter((p) => p.type === "finish10")
             .findIndex((p) => p.size === operation.size);
-          const subNumber = 1001 + offset + index;
+          const subNumber = baseNumber + 1 + offset + index;
           console.log(
             `  ➡️ FINISH10: ${operation.size} → O${subNumber} (offset=${offset})`
           );
@@ -6386,7 +6386,7 @@
           const index = processes
             .filter((p) => p.type === "chamfer")
             .findIndex((p) => p.size === operation.size);
-          const subNumber = 1001 + offset + index;
+          const subNumber = baseNumber + 1 + offset + index;
           console.log(
             `  ➡️ CHAMFER: ${operation.size} → O${subNumber} (offset=${offset})`
           );
