@@ -6793,6 +6793,39 @@
         return baseNumber + 1;
       }
 
+      // Helper function to format coordinate value for NC output
+      function formatCoordValue(value) {
+        if (value === '' || value === null || value === undefined) {
+          return '0.';
+        }
+        const num = parseFloat(value);
+        if (isNaN(num)) return '0.';
+        // Format: if integer, add decimal point; otherwise show as-is with trailing dot if needed
+        if (Number.isInteger(num)) {
+          return num + '.';
+        }
+        return num.toString().includes('.') ? num.toString() : num + '.';
+      }
+
+      // Helper function to generate position lines from coordinate data
+      function generatePositionLines(processType, size) {
+        const coords = getCoordinateDataForProcess(processType, size);
+        if (coords.length === 0) {
+          return 'G90X0.Y0.\n'; // Default placeholder if no coordinates entered
+        }
+        let lines = '';
+        coords.forEach((coord, index) => {
+          const x = formatCoordValue(coord.x);
+          const y = formatCoordValue(coord.y);
+          if (index === 0) {
+            lines += `G90X${x}Y${y}\n`;
+          } else {
+            lines += `X${x}Y${y}\n`;
+          }
+        });
+        return lines;
+      }
+
       function generatePositionSubroutines(processes, baseNumber = 1000) {
         let positionSubs = "";
         let subNumber = baseNumber + 1;
@@ -6802,7 +6835,7 @@
           .filter((p) => p.type === "threaded")
           .forEach((process) => {
             positionSubs += `O${subNumber}(${process.size}-SB)\n`;
-            positionSubs += `G90X0.Y0.\n`; // Placeholder positions
+            positionSubs += generatePositionLines('threaded', process.size);
             positionSubs += `M99\n\n`;
             subNumber++;
           });
@@ -6811,7 +6844,7 @@
           .filter((p) => p.type === "precision")
           .forEach((process) => {
             positionSubs += `O${subNumber}(${process.size}-SB)\n`;
-            positionSubs += `G90X0.Y0.\n`; // Placeholder positions
+            positionSubs += generatePositionLines('precision', process.size);
             positionSubs += `M99\n\n`;
             subNumber++;
           });
@@ -6820,7 +6853,7 @@
           .filter((p) => p.type === "counterbore")
           .forEach((process) => {
             positionSubs += `O${subNumber}(${process.size}-SB)\n`;
-            positionSubs += `G90X0.Y0.\n`; // Placeholder positions
+            positionSubs += generatePositionLines('counterbore', process.size);
             positionSubs += `M99\n\n`;
             subNumber++;
           });
@@ -6829,7 +6862,7 @@
           .filter((p) => p.type === "through")
           .forEach((process) => {
             positionSubs += `O${subNumber}(${process.size}-SB)\n`;
-            positionSubs += `G90X0.Y0.\n`; // Placeholder positions
+            positionSubs += generatePositionLines('through', process.size);
             positionSubs += `M99\n\n`;
             subNumber++;
           });
@@ -6839,7 +6872,7 @@
           .filter((p) => p.type === "nagaana")
           .forEach((process) => {
             positionSubs += `O${subNumber}(${process.size}-SB)\n`;
-            positionSubs += `G90X0.Y0.\n`; // Placeholder positions
+            positionSubs += generatePositionLines('nagaana', process.size);
             positionSubs += `M99\n\n`;
             subNumber++;
           });
@@ -6849,7 +6882,7 @@
           .filter((p) => p.type === "prehole")
           .forEach((process) => {
             positionSubs += `O${subNumber}(PREHOLE-SB)\n`;
-            positionSubs += `G90X0.Y0.\n`; // Placeholder positions
+            positionSubs += generatePositionLines('prehole', process.size);
             positionSubs += `M99\n\n`;
             subNumber++;
           });
@@ -6869,7 +6902,7 @@
             .filter((p) => p.type === "rough10")
             .forEach((process) => {
               positionSubs += `O${subNumber}(ROUGH10-SB)\n`;
-              positionSubs += `G90X0.Y0.\n`; // Placeholder positions
+              positionSubs += generatePositionLines('rough10', process.size);
               positionSubs += `M99\n\n`;
               subNumber++;
             });
@@ -6878,7 +6911,7 @@
             .filter((p) => p.type === "finish10")
             .forEach((process) => {
               positionSubs += `O${subNumber}(FINISH10-SB)\n`;
-              positionSubs += `G90X0.Y0.\n`; // Placeholder positions
+              positionSubs += generatePositionLines('finish10', process.size);
               positionSubs += `M99\n\n`;
               subNumber++;
             });
@@ -6894,7 +6927,7 @@
               .filter((p) => p.type === "chamfer")
               .forEach((process) => {
                 positionSubs += `O${subNumber}(CHAMFER-SB)\n`;
-                positionSubs += `G90X0.Y0.\n`; // Placeholder positions
+                positionSubs += generatePositionLines('chamfer', process.size);
                 positionSubs += `M99\n\n`;
                 subNumber++;
               });
