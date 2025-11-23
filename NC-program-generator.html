@@ -5809,7 +5809,8 @@
             subroutines += `G83Z-${zDepth}.R1.Q1.5F${drillSF.F}L0\n`;
             subroutines += `M98P${getPositionSubNumber(
               operation,
-              processes
+              processes,
+              baseNumber
             )}\n`;
             subroutines += `G00G80\n`;
             subroutines += `M99\n\n`;
@@ -5845,7 +5846,8 @@
             subroutines += `G84Z-${zDepth}.R1.F${pitch}S${speeds.tapSpeed}L0\n`;
             subroutines += `M98P${getPositionSubNumber(
               operation,
-              processes
+              processes,
+              baseNumber
             )}\n`;
             subroutines += `G00G80\n`;
             subroutines += `M99\n\n`;
@@ -5875,7 +5877,8 @@
             subroutines += `G83Z-${zDepth}.R1.Q1.5F${drillSF.F}L0\n`;
             subroutines += `M98P${getPositionSubNumber(
               operation,
-              processes
+              processes,
+              baseNumber
             )}\n`;
 
             // CHECK IF NAGAANA SHARES THIS DRILL
@@ -5898,7 +5901,8 @@
                   size: nagaanaSize,
                   type: "nagaana_drill",
                 },
-                processes
+                processes,
+                baseNumber
               );
               subroutines += `M98P${nagaanaSubNumber}\n`;
             }
@@ -5913,7 +5917,8 @@
             subroutines += `G85Z-${thickness + 10}.R1.F120L0\n`;
             subroutines += `M98P${getPositionSubNumber(
               operation,
-              processes
+              processes,
+              baseNumber
             )}\n`;
             subroutines += `G00G80\n`;
             subroutines += `M99\n\n`;
@@ -5943,7 +5948,8 @@
             subroutines += `G83Z-${zDepth}.R1.Q1.5F${drillSF.F}L0\n`;
             subroutines += `M98P${getPositionSubNumber(
               operation,
-              processes
+              processes,
+              baseNumber
             )}\n`;
             subroutines += `G00G80\n`;
             subroutines += `M99\n\n`;
@@ -5956,7 +5962,8 @@
             subroutines += `G83Z-${throughDia}.R1.Q0.5F80L0\n`;
             subroutines += `M98P${getPositionSubNumber(
               operation,
-              processes
+              processes,
+              baseNumber
             )}\n`;
             subroutines += `G00G80\n`;
             subroutines += `M99\n\n`;
@@ -5986,7 +5993,8 @@
             subroutines += `G83Z-${zDepth}.R1.Q1.5F${drillSF.F}L0\n`;
             subroutines += `M98P${getPositionSubNumber(
               operation,
-              processes
+              processes,
+              baseNumber
             )}\n`;
             subroutines += `G00G80\n`;
             subroutines += `M99\n\n`;
@@ -6019,7 +6027,8 @@
             subroutines += `G83Z-${zDepth}.R1.Q1.5F${drillSF.F}L0\n`;
             subroutines += `M98P${getPositionSubNumber(
               operation,
-              processes
+              processes,
+              baseNumber
             )}\n`;
             subroutines += `G00G80\n`;
             subroutines += `M99\n\n`;
@@ -6061,7 +6070,8 @@
                     size: nagaanaProcess.size,
                     type: "nagaana_endmill",
                   },
-                  processes
+                  processes,
+                  baseNumber
                 );
                 console.log(
                   `      - M98P${positionSubNumber} (${nagaanaProcess.size})`
@@ -6097,7 +6107,8 @@
             subroutines += `G83Z-${zDepth}.R1.Q1.5F${drillSF.F}L0\n`;
             subroutines += `M98P${getPositionSubNumber(
               operation,
-              processes
+              processes,
+              baseNumber
             )}\n`;
             subroutines += `G00G80\n`;
             subroutines += `M99\n\n`;
@@ -6252,15 +6263,15 @@
         });
 
         // Add position subroutines at the end
-        subroutines += generatePositionSubroutines(processes);
+        subroutines += generatePositionSubroutines(processes, baseNumber);
 
         console.log(`✅ Subroutines complete. Total subroutines generated.`);
         return subroutines;
       }
 
-      function getPositionSubNumber(operation, processes) {
+      function getPositionSubNumber(operation, processes, baseNumber = 1000) {
         console.log(
-          `🔍 POSITION SUB DEBUG: Getting position for ${operation.processType} ${operation.size}`
+          `🔍 POSITION SUB DEBUG: Getting position for ${operation.processType} ${operation.size} (base: ${baseNumber})`
         );
 
         if (operation.processType === "threaded") {
@@ -6392,13 +6403,13 @@
           );
           return subNumber;
         }
-        console.log(`  ⚠️ FALLBACK: Unknown processType, returning 1001`);
-        return 1001;
+        console.log(`  ⚠️ FALLBACK: Unknown processType, returning ${baseNumber + 1}`);
+        return baseNumber + 1;
       }
 
-      function generatePositionSubroutines(processes) {
+      function generatePositionSubroutines(processes, baseNumber = 1000) {
         let positionSubs = "";
-        let subNumber = 1001;
+        let subNumber = baseNumber + 1;
 
         // Generate position subroutines for each process type
         processes
