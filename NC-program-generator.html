@@ -6727,7 +6727,7 @@
             subroutines += `O${operation.operationNumber}(${tool.diameter}-RM)\n`;
             subroutines += `M8\n`;
             subroutines += `G00G17G90S${speeds.reamSpeed}M3\n`;
-            subroutines += `G85Z-${thickness + 10}.R1.F120L0\n`;
+            subroutines += `G85Z-${thickness + 10}.R1.F${Math.round(speeds.reamSpeed * 0.12)}L0\n`;
             subroutines += `M98P${getPositionSubNumber(
               operation,
               processes,
