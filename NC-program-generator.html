@@ -149,6 +149,87 @@
       .copy-btn:hover {
         background-color: #2980b9;
       }
+
+      /* Coordinate Input Styles */
+      .coordinate-group {
+        margin-bottom: 20px;
+        padding: 15px;
+        background-color: #f8f9fa;
+        border-radius: 8px;
+        border: 1px solid #dee2e6;
+      }
+
+      .coordinate-group h4 {
+        margin: 0 0 10px 0;
+        color: #495057;
+        font-size: 14px;
+      }
+
+      .coordinate-position {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 8px;
+        flex-wrap: wrap;
+      }
+
+      .coord-label {
+        font-size: 13px;
+        color: #6c757d;
+        min-width: 40px;
+      }
+
+      .coordinate-input {
+        width: 100px;
+        padding: 6px 10px;
+        border: 1px solid #ced4da;
+        border-radius: 4px;
+        font-size: 13px;
+      }
+
+      .coordinate-input:focus {
+        border-color: #3498db;
+        outline: none;
+        box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+      }
+
+      .add-coord {
+        background-color: #28a745;
+        color: white;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 13px;
+        margin-top: 10px;
+      }
+
+      .add-coord:hover {
+        background-color: #218838;
+      }
+
+      .delete-coord {
+        background-color: #dc3545;
+        color: white;
+        border: none;
+        padding: 4px 10px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 12px;
+      }
+
+      .delete-coord:hover {
+        background-color: #c82333;
+      }
+
+      #coordinate-section {
+        border: 2px solid #3498db;
+        background-color: #ecf6ff;
+      }
+
+      #coordinate-section h3 {
+        color: #2980b9;
+      }
     </style>
   </head>
   <body>
@@ -451,6 +532,17 @@
         </div>
       </div>
 
+      <!-- Coordinate Input Section -->
+      <div class="section" id="coordinate-section" style="display: none;">
+        <h3>📍 選択された座標 (Selected Coordinates)</h3>
+        <p style="font-size: 12px; color: #666; margin-bottom: 15px;">
+          各穴タイプの座標を入力してください。Enterキーで次の入力に移動します。
+        </p>
+        <div id="coordinate-container">
+          <!-- Dynamic coordinate inputs will appear here -->
+        </div>
+      </div>
+
       <!-- Material Thickness -->
       <div class="section">
         <h3>材料厚み (Material Thickness)</h3>
@@ -508,6 +600,9 @@
     </div>
 
     <script>
+      // Global coordinate data storage
+      let coordinateData = {}; // Store coordinates per process type
+
       // Add console logging for debugging
       document.addEventListener("DOMContentLoaded", function () {
         console.log("=== NC PROGRAM GENERATOR LOADED ===");
@@ -550,7 +645,298 @@
           .addEventListener("input", function () {
             console.log(`📝 Part name: ${this.value}`);
           });
+
+        // Add event listeners to all checkboxes for coordinate updates
+        document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+          checkbox.addEventListener('change', updateCoordinateSection);
+        });
       });
+
+      // ============================================================================
+      // COORDINATE MANAGEMENT SYSTEM
+      // ============================================================================
+
+      // Show/hide coordinate section based on selections
+      function updateCoordinateSection() {
+        const anyChecked = document.querySelectorAll('input[type="checkbox"]:checked').length > 0;
+        const coordinateSection = document.getElementById('coordinate-section');
+
+        if (anyChecked) {
+          coordinateSection.style.display = 'block';
+          updateCoordinateGroups();
+        } else {
+          coordinateSection.style.display = 'none';
+          coordinateData = {}; // Clear coordinate data
+        }
+      }
+
+      // Update coordinate groups based on checked processes
+      function updateCoordinateGroups() {
+        const container = document.getElementById('coordinate-container');
+        container.innerHTML = '';
+
+        // Get selected processes (same logic as existing getSelectedProcesses)
+        const selectedProcesses = getSelectedProcessesForCoordinates();
+
+        selectedProcesses.forEach(process => {
+          const groupKey = `${process.type}_${process.size}`;
+
+          if (!coordinateData[groupKey]) {
+            coordinateData[groupKey] = [];
+          }
+
+          createCoordinateGroup(process, groupKey);
+        });
+      }
+
+      // Get selected processes for coordinates (simplified version)
+      function getSelectedProcessesForCoordinates() {
+        const processes = [];
+
+        // Threaded holes
+        const threadedIds = ['m2', 'm25', 'm3', 'm4', 'm5', 'm6', 'm8', 'm10', 'm12', 'm16', 'm20'];
+        const threadedSizes = ['M2', 'M2.5', 'M3', 'M4', 'M5', 'M6', 'M8', 'M10', 'M12', 'M16', 'M20'];
+        threadedIds.forEach((id, index) => {
+          const el = document.getElementById(id);
+          if (el && el.checked) {
+            processes.push({ type: 'threaded', size: threadedSizes[index] });
+          }
+        });
+
+        // Precision holes
+        const precisionIds = ['h7_2', 'h7_3', 'h7_4', 'h7_5', 'h7_6', 'h7_8', 'h7_10', 'h7_12'];
+        const precisionSizes = ['2H7', '3H7', '4H7', '5H7', '6H7', '8H7', '10H7', '12H7'];
+        precisionIds.forEach((id, index) => {
+          const el = document.getElementById(id);
+          if (el && el.checked) {
+            processes.push({ type: 'precision', size: precisionSizes[index] });
+          }
+        });
+
+        // Nagaana holes
+        const nagaanaIds = ['nagaana_2', 'nagaana_3', 'nagaana_4', 'nagaana_5', 'nagaana_6', 'nagaana_8', 'nagaana_10'];
+        const nagaanaSizes = ['2H7N', '3H7N', '4H7N', '5H7N', '6H7N', '8H7N', '10H7N'];
+        nagaanaIds.forEach((id, index) => {
+          const el = document.getElementById(id);
+          if (el && el.checked) {
+            processes.push({ type: 'nagaana', size: nagaanaSizes[index] });
+          }
+        });
+
+        // Counterbore holes
+        const cbIds = ['cb_2545', 'cb_3565', 'cb_458', 'cb_5595', 'cb_6511', 'cb_8514', 'cb_1120'];
+        const cbSizes = ['2.5/4.5E', '3.5/6.5E', '4.5/8E', '5.5/9.5E', '6.5/11E', '8.5/14E', '11/20E'];
+        cbIds.forEach((id, index) => {
+          const el = document.getElementById(id);
+          if (el && el.checked) {
+            processes.push({ type: 'counterbore', size: cbSizes[index] });
+          }
+        });
+
+        // Through holes (1-20)
+        for (let i = 1; i <= 20; i++) {
+          const el = document.getElementById(`th_${i}`);
+          if (el && el.checked) {
+            processes.push({ type: 'through', size: i.toString() });
+          }
+        }
+
+        // Pocket operations
+        if (document.getElementById('prehole')?.checked) {
+          processes.push({ type: 'prehole', size: 'PREHOLE' });
+        }
+        if (document.getElementById('rough10')?.checked) {
+          processes.push({ type: 'rough10', size: 'ROUGH10' });
+        }
+        if (document.getElementById('finish10')?.checked) {
+          processes.push({ type: 'finish10', size: 'FINISH10' });
+        }
+        if (document.getElementById('chamfer')?.checked) {
+          processes.push({ type: 'chamfer', size: 'CHAMFER' });
+        }
+
+        return processes;
+      }
+
+      // Create coordinate input group for a process
+      function createCoordinateGroup(process, groupKey) {
+        const container = document.getElementById('coordinate-container');
+
+        // Create group div
+        const groupDiv = document.createElement('div');
+        groupDiv.className = 'coordinate-group';
+        groupDiv.id = `coord-group-${groupKey}`;
+
+        // Create header with Japanese labels
+        const header = document.createElement('h4');
+        const count = coordinateData[groupKey] ? coordinateData[groupKey].length : 0;
+        let label = '';
+
+        if (process.type === 'threaded') {
+          label = `${process.size}穴 (${count}箇所)`;
+        } else if (process.type === 'precision') {
+          label = `精密穴 ${process.size} (${count}箇所)`;
+        } else if (process.type === 'nagaana') {
+          label = `長穴 ${process.size} (${count}箇所)`;
+        } else if (process.type === 'counterbore') {
+          label = `座ぐり穴 φ${process.size} (${count}箇所)`;
+        } else if (process.type === 'through') {
+          label = `通し穴 φ${process.size} (${count}箇所)`;
+        } else if (process.type === 'prehole') {
+          label = `下穴 φ10.8 (${count}箇所)`;
+        } else if (process.type === 'rough10') {
+          label = `10ラフィング (${count}箇所)`;
+        } else if (process.type === 'finish10') {
+          label = `10仕上げ (${count}箇所)`;
+        } else if (process.type === 'chamfer') {
+          label = `面取り (${count}箇所)`;
+        }
+
+        header.textContent = label;
+        groupDiv.appendChild(header);
+
+        // Create positions container
+        const positionsDiv = document.createElement('div');
+        positionsDiv.id = `positions-${groupKey}`;
+        groupDiv.appendChild(positionsDiv);
+
+        // Create add button
+        const addBtn = document.createElement('button');
+        addBtn.className = 'add-coord';
+        addBtn.type = 'button';
+        addBtn.textContent = `+ 位置を追加`;
+        addBtn.onclick = () => addCoordinatePosition(groupKey);
+        groupDiv.appendChild(addBtn);
+
+        container.appendChild(groupDiv);
+
+        // Render existing positions
+        renderCoordinatePositions(groupKey);
+      }
+
+      // Add new coordinate position
+      function addCoordinatePosition(groupKey) {
+        console.log(`📍 Adding coordinate position for ${groupKey}`);
+
+        if (!coordinateData[groupKey]) {
+          coordinateData[groupKey] = [];
+        }
+
+        coordinateData[groupKey].push({ x: '', y: '' });
+        renderCoordinatePositions(groupKey);
+
+        // Focus on new X input
+        setTimeout(() => {
+          const positions = document.querySelectorAll(`#positions-${groupKey} .coordinate-position`);
+          const lastPosition = positions[positions.length - 1];
+          if (lastPosition) {
+            const xInput = lastPosition.querySelector('.coordinate-input[data-coord="x"]');
+            if (xInput) xInput.focus();
+          }
+        }, 100);
+
+        updateCoordinateGroupHeader(groupKey);
+      }
+
+      // Render coordinate positions
+      function renderCoordinatePositions(groupKey) {
+        const container = document.getElementById(`positions-${groupKey}`);
+        if (!container) return;
+
+        container.innerHTML = '';
+
+        coordinateData[groupKey].forEach((coord, index) => {
+          const posDiv = document.createElement('div');
+          posDiv.className = 'coordinate-position';
+
+          posDiv.innerHTML = `
+            <span class="coord-label">位置${index + 1}:</span>
+            <span class="coord-label">X</span>
+            <input type="number" class="coordinate-input" data-coord="x" data-group="${groupKey}" data-index="${index}"
+                   value="${coord.x}" placeholder="X座標" step="0.001">
+            <span class="coord-label">Y</span>
+            <input type="number" class="coordinate-input" data-coord="y" data-group="${groupKey}" data-index="${index}"
+                   value="${coord.y}" placeholder="Y座標" step="0.001">
+            <button class="delete-coord" type="button" onclick="deleteCoordinatePosition('${groupKey}', ${index})">削除</button>
+          `;
+
+          container.appendChild(posDiv);
+        });
+
+        // Add event listeners for coordinate inputs
+        container.querySelectorAll('.coordinate-input').forEach(input => {
+          input.addEventListener('input', updateCoordinateValue);
+          input.addEventListener('keydown', handleCoordinateKeyDown);
+        });
+      }
+
+      // Make deleteCoordinatePosition globally accessible
+      window.deleteCoordinatePosition = function(groupKey, index) {
+        console.log(`📍 Deleting coordinate position ${groupKey}[${index}]`);
+        coordinateData[groupKey].splice(index, 1);
+        renderCoordinatePositions(groupKey);
+        updateCoordinateGroupHeader(groupKey);
+      };
+
+      // Update coordinate value
+      function updateCoordinateValue(event) {
+        const input = event.target;
+        const groupKey = input.getAttribute('data-group');
+        const index = parseInt(input.getAttribute('data-index'));
+        const coord = input.getAttribute('data-coord');
+
+        coordinateData[groupKey][index][coord] = input.value;
+        console.log(`📍 Updated ${groupKey}[${index}].${coord} = ${input.value}`);
+      }
+
+      // Handle Enter key navigation
+      function handleCoordinateKeyDown(event) {
+        if (event.key === 'Enter') {
+          event.preventDefault();
+          const currentInput = event.target;
+          const groupKey = currentInput.getAttribute('data-group');
+          const index = parseInt(currentInput.getAttribute('data-index'));
+          const coord = currentInput.getAttribute('data-coord');
+
+          if (coord === 'x') {
+            // Move to Y field
+            const yInput = document.querySelector(`input[data-group="${groupKey}"][data-index="${index}"][data-coord="y"]`);
+            if (yInput) yInput.focus();
+          } else if (coord === 'y') {
+            // Move to next X field or add new position
+            const nextIndex = index + 1;
+            const nextXInput = document.querySelector(`input[data-group="${groupKey}"][data-index="${nextIndex}"][data-coord="x"]`);
+
+            if (nextXInput) {
+              nextXInput.focus();
+            } else {
+              // Add new position
+              addCoordinatePosition(groupKey);
+            }
+          }
+        }
+      }
+
+      // Update group header with count
+      function updateCoordinateGroupHeader(groupKey) {
+        const header = document.querySelector(`#coord-group-${groupKey} h4`);
+        if (!header) return;
+
+        const count = coordinateData[groupKey] ? coordinateData[groupKey].length : 0;
+        let text = header.textContent;
+        text = text.replace(/\(\d+箇所\)/, `(${count}箇所)`);
+        header.textContent = text;
+      }
+
+      // Get coordinate data for program generation
+      function getCoordinateDataForProcess(processType, size) {
+        const groupKey = `${processType}_${size}`;
+        return coordinateData[groupKey] || [];
+      }
+
+      // ============================================================================
+      // END COORDINATE MANAGEMENT SYSTEM
+      // ============================================================================
 
       function createToolAssignment(processes) {
         console.log("🔧 Creating SEQUENTIAL tool assignment T1-T18...");
