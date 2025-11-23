@@ -6689,11 +6689,15 @@
             subroutines += `O${operation.operationNumber}(${operation.size}-TAP)\n`;
             subroutines += `M8\n`;
             subroutines += `G00G17G90\n`;
-            // FANUC: Add M29 rigid tapping command before G84
+            // FANUC: Add M29 rigid tapping, feed = pitch × spindle speed
+            // Mitsubishi: feed = pitch only
             if (controller === "FANUC") {
+              const tapFeed = pitch * speeds.tapSpeed;
               subroutines += `M29S${speeds.tapSpeed}\n`;
+              subroutines += `G84Z-${zDepth}.R1.F${tapFeed}${repeatCode}\n`;
+            } else {
+              subroutines += `G84Z-${zDepth}.R1.F${pitch}S${speeds.tapSpeed}${repeatCode}\n`;
             }
-            subroutines += `G84Z-${zDepth}.R1.F${pitch}S${speeds.tapSpeed}${repeatCode}\n`;
             subroutines += `M98P${getPositionSubNumber(
               operation,
               processes,
