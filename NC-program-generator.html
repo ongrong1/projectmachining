@@ -230,6 +230,174 @@
       #coordinate-section h3 {
         color: #2980b9;
       }
+
+      /* RS-232 Transfer Styles */
+      .serial-section {
+        background-color: #fff3e0;
+        border: 2px solid #ff9800;
+        padding: 15px;
+        border-radius: 8px;
+        margin-top: 15px;
+      }
+
+      .serial-section h4 {
+        color: #e65100;
+        margin: 0 0 15px 0;
+        font-size: 14px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .serial-config {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px;
+        align-items: center;
+        margin-bottom: 15px;
+      }
+
+      .serial-config label {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 13px;
+        color: #5d4037;
+      }
+
+      .serial-config select {
+        padding: 6px 10px;
+        border: 1px solid #ffcc80;
+        border-radius: 4px;
+        background-color: white;
+        font-size: 13px;
+      }
+
+      .serial-buttons {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+
+      .connect-btn {
+        background-color: #4caf50;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 13px;
+        font-weight: bold;
+      }
+
+      .connect-btn:hover {
+        background-color: #43a047;
+      }
+
+      .connect-btn.connected {
+        background-color: #f44336;
+      }
+
+      .connect-btn.connected:hover {
+        background-color: #e53935;
+      }
+
+      .transfer-btn {
+        background-color: #ff9800;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 13px;
+        font-weight: bold;
+      }
+
+      .transfer-btn:hover {
+        background-color: #fb8c00;
+      }
+
+      .transfer-btn:disabled {
+        background-color: #ccc;
+        cursor: not-allowed;
+      }
+
+      .serial-status {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 12px;
+        color: #666;
+        margin-top: 10px;
+        padding: 8px;
+        background-color: rgba(255, 255, 255, 0.7);
+        border-radius: 4px;
+      }
+
+      .status-indicator {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background-color: #ccc;
+      }
+
+      .status-indicator.connected {
+        background-color: #4caf50;
+        animation: pulse 2s infinite;
+      }
+
+      .status-indicator.transferring {
+        background-color: #ff9800;
+        animation: pulse 0.5s infinite;
+      }
+
+      .status-indicator.error {
+        background-color: #f44336;
+      }
+
+      @keyframes pulse {
+        0% { opacity: 1; }
+        50% { opacity: 0.5; }
+        100% { opacity: 1; }
+      }
+
+      .transfer-progress {
+        margin-top: 10px;
+        display: none;
+      }
+
+      .progress-bar {
+        width: 100%;
+        height: 20px;
+        background-color: #e0e0e0;
+        border-radius: 10px;
+        overflow: hidden;
+      }
+
+      .progress-fill {
+        height: 100%;
+        background-color: #ff9800;
+        border-radius: 10px;
+        transition: width 0.3s ease;
+        width: 0%;
+      }
+
+      .progress-text {
+        text-align: center;
+        font-size: 12px;
+        color: #666;
+        margin-top: 5px;
+      }
+
+      .serial-warning {
+        font-size: 11px;
+        color: #856404;
+        background-color: #fff3cd;
+        padding: 8px 12px;
+        border-radius: 4px;
+        margin-top: 10px;
+        display: none;
+      }
     </style>
   </head>
   <body>
@@ -595,6 +763,68 @@
         <button class="copy-btn" onclick="copyToClipboard()">
           Copy to Clipboard
         </button>
+
+        <!-- RS-232 Transfer Section -->
+        <div class="serial-section">
+          <h4>RS-232 シリアル転送</h4>
+          <div class="serial-config">
+            <label>
+              ボーレート:
+              <select id="baudRate">
+                <option value="4800">4800</option>
+                <option value="9600" selected>9600</option>
+                <option value="19200">19200</option>
+                <option value="38400">38400</option>
+                <option value="57600">57600</option>
+                <option value="115200">115200</option>
+              </select>
+            </label>
+            <label>
+              データビット:
+              <select id="dataBits">
+                <option value="7">7</option>
+                <option value="8" selected>8</option>
+              </select>
+            </label>
+            <label>
+              パリティ:
+              <select id="parity">
+                <option value="none" selected>なし</option>
+                <option value="even">偶数</option>
+                <option value="odd">奇数</option>
+              </select>
+            </label>
+            <label>
+              ストップビット:
+              <select id="stopBits">
+                <option value="1" selected>1</option>
+                <option value="2">2</option>
+              </select>
+            </label>
+          </div>
+          <div class="serial-buttons">
+            <button class="connect-btn" id="connectBtn" onclick="toggleSerialConnection()">
+              ポート接続
+            </button>
+            <button class="transfer-btn" id="transferBtn" onclick="transferProgram()" disabled>
+              プログラム転送
+            </button>
+          </div>
+          <div class="serial-status">
+            <span class="status-indicator" id="statusIndicator"></span>
+            <span id="statusText">未接続</span>
+          </div>
+          <div class="transfer-progress" id="transferProgress">
+            <div class="progress-bar">
+              <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <div class="progress-text" id="progressText">0%</div>
+          </div>
+          <div class="serial-warning" id="serialWarning">
+            ⚠️ Web Serial APIはChrome/Edgeブラウザでのみ動作します。HTTPSまたはlocalhostが必要です。
+          </div>
+        </div>
+
         <div id="program-output"></div>
       </div>
     </div>
@@ -603,9 +833,220 @@
       // Global coordinate data storage
       let coordinateData = {}; // Store coordinates per process type
 
+      // ============================================================================
+      // RS-232 SERIAL COMMUNICATION
+      // ============================================================================
+
+      let serialPort = null;
+      let serialWriter = null;
+      let isConnected = false;
+
+      // Check if Web Serial API is supported
+      function checkSerialSupport() {
+        if (!('serial' in navigator)) {
+          const warning = document.getElementById('serialWarning');
+          if (warning) {
+            warning.style.display = 'block';
+          }
+          console.warn('⚠️ Web Serial API not supported in this browser');
+          return false;
+        }
+        return true;
+      }
+
+      // Update UI status
+      function updateSerialStatus(status, message) {
+        const indicator = document.getElementById('statusIndicator');
+        const text = document.getElementById('statusText');
+        const connectBtn = document.getElementById('connectBtn');
+        const transferBtn = document.getElementById('transferBtn');
+
+        if (indicator) {
+          indicator.className = 'status-indicator';
+          if (status === 'connected') {
+            indicator.classList.add('connected');
+          } else if (status === 'transferring') {
+            indicator.classList.add('transferring');
+          } else if (status === 'error') {
+            indicator.classList.add('error');
+          }
+        }
+
+        if (text) {
+          text.textContent = message;
+        }
+
+        if (connectBtn) {
+          if (isConnected) {
+            connectBtn.textContent = '切断';
+            connectBtn.classList.add('connected');
+          } else {
+            connectBtn.textContent = 'ポート接続';
+            connectBtn.classList.remove('connected');
+          }
+        }
+
+        if (transferBtn) {
+          transferBtn.disabled = !isConnected;
+        }
+      }
+
+      // Toggle serial connection
+      async function toggleSerialConnection() {
+        if (isConnected) {
+          await disconnectSerial();
+        } else {
+          await connectSerial();
+        }
+      }
+
+      // Connect to serial port
+      async function connectSerial() {
+        if (!checkSerialSupport()) {
+          alert('Web Serial APIはこのブラウザでサポートされていません。\nChrome または Edge ブラウザを使用してください。');
+          return;
+        }
+
+        try {
+          // Request port from user
+          serialPort = await navigator.serial.requestPort();
+
+          // Get configuration from UI
+          const baudRate = parseInt(document.getElementById('baudRate').value);
+          const dataBits = parseInt(document.getElementById('dataBits').value);
+          const parity = document.getElementById('parity').value;
+          const stopBits = parseInt(document.getElementById('stopBits').value);
+
+          // Open port with configuration
+          await serialPort.open({
+            baudRate: baudRate,
+            dataBits: dataBits,
+            parity: parity,
+            stopBits: stopBits,
+            flowControl: 'none'
+          });
+
+          // Get writer for sending data
+          serialWriter = serialPort.writable.getWriter();
+
+          isConnected = true;
+          updateSerialStatus('connected', `接続済み (${baudRate} bps)`);
+          console.log(`✅ Serial port connected at ${baudRate} bps`);
+
+        } catch (error) {
+          console.error('❌ Serial connection error:', error);
+          if (error.name === 'NotFoundError') {
+            updateSerialStatus('error', 'ポートが選択されませんでした');
+          } else {
+            updateSerialStatus('error', `接続エラー: ${error.message}`);
+          }
+          isConnected = false;
+        }
+      }
+
+      // Disconnect from serial port
+      async function disconnectSerial() {
+        try {
+          if (serialWriter) {
+            serialWriter.releaseLock();
+            serialWriter = null;
+          }
+          if (serialPort) {
+            await serialPort.close();
+            serialPort = null;
+          }
+          isConnected = false;
+          updateSerialStatus('', '未接続');
+          console.log('🔌 Serial port disconnected');
+        } catch (error) {
+          console.error('❌ Disconnect error:', error);
+          updateSerialStatus('error', `切断エラー: ${error.message}`);
+        }
+      }
+
+      // Transfer program via serial
+      async function transferProgram() {
+        if (!isConnected || !serialWriter) {
+          alert('シリアルポートに接続してください。');
+          return;
+        }
+
+        const output = document.getElementById('program-output').textContent;
+        if (!output || output.trim() === '') {
+          alert('転送するプログラムがありません。\n先にプログラムを生成してください。');
+          return;
+        }
+
+        const progressDiv = document.getElementById('transferProgress');
+        const progressFill = document.getElementById('progressFill');
+        const progressText = document.getElementById('progressText');
+
+        try {
+          updateSerialStatus('transferring', '転送中...');
+          progressDiv.style.display = 'block';
+
+          // Convert text to bytes (using Shift-JIS for Japanese CNC compatibility)
+          // Most CNC machines use ASCII, so we'll encode appropriately
+          const encoder = new TextEncoder();
+
+          // Add start/end characters if needed (some machines require %)
+          let programData = output;
+
+          // Convert to bytes
+          const data = encoder.encode(programData);
+          const totalBytes = data.length;
+
+          // Send in chunks for progress tracking and flow control
+          const chunkSize = 64; // bytes per chunk
+          let sentBytes = 0;
+
+          console.log(`📤 Starting transfer: ${totalBytes} bytes`);
+
+          for (let i = 0; i < data.length; i += chunkSize) {
+            const chunk = data.slice(i, Math.min(i + chunkSize, data.length));
+            await serialWriter.write(chunk);
+
+            sentBytes += chunk.length;
+            const percent = Math.round((sentBytes / totalBytes) * 100);
+
+            progressFill.style.width = `${percent}%`;
+            progressText.textContent = `${percent}% (${sentBytes}/${totalBytes} bytes)`;
+
+            // Small delay for flow control (adjust if needed)
+            await new Promise(resolve => setTimeout(resolve, 10));
+          }
+
+          updateSerialStatus('connected', '転送完了!');
+          progressText.textContent = '転送完了!';
+          console.log('✅ Transfer complete!');
+
+          // Hide progress after a delay
+          setTimeout(() => {
+            progressDiv.style.display = 'none';
+            progressFill.style.width = '0%';
+            const baudRate = document.getElementById('baudRate').value;
+            updateSerialStatus('connected', `接続済み (${baudRate} bps)`);
+          }, 3000);
+
+        } catch (error) {
+          console.error('❌ Transfer error:', error);
+          updateSerialStatus('error', `転送エラー: ${error.message}`);
+          progressText.textContent = 'エラー発生';
+
+          // Try to reconnect if connection was lost
+          if (error.message.includes('disconnected') || error.message.includes('closed')) {
+            isConnected = false;
+            updateSerialStatus('error', 'ポート切断されました');
+          }
+        }
+      }
+
       // Add console logging for debugging
       document.addEventListener("DOMContentLoaded", function () {
         console.log("=== NC PROGRAM GENERATOR LOADED ===");
+
+        // Check Web Serial API support on load
+        checkSerialSupport();
 
         // Track material selection changes
         document.querySelectorAll('input[name="material"]').forEach((radio) => {
