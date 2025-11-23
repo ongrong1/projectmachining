@@ -231,62 +231,67 @@
         color: #2980b9;
       }
 
-      /* RS-232 Transfer Styles */
+      /* RS-232 Transfer Styles - Compact */
       .serial-section {
-        background-color: #fff3e0;
-        border: 2px solid #ff9800;
-        padding: 15px;
-        border-radius: 8px;
-        margin-top: 15px;
+        background-color: #fff8e1;
+        border: 1px solid #ffcc80;
+        padding: 8px 12px;
+        border-radius: 6px;
+        margin-top: 10px;
       }
 
       .serial-section h4 {
         color: #e65100;
-        margin: 0 0 15px 0;
-        font-size: 14px;
+        margin: 0;
+        font-size: 12px;
+        display: inline;
+        margin-right: 15px;
+      }
+
+      .serial-header {
         display: flex;
         align-items: center;
+        flex-wrap: wrap;
         gap: 8px;
       }
 
       .serial-config {
-        display: flex;
+        display: inline-flex;
         flex-wrap: wrap;
-        gap: 15px;
+        gap: 8px;
         align-items: center;
-        margin-bottom: 15px;
       }
 
       .serial-config label {
-        display: flex;
+        display: inline-flex;
         align-items: center;
-        gap: 8px;
-        font-size: 13px;
+        gap: 3px;
+        font-size: 11px;
         color: #5d4037;
       }
 
       .serial-config select {
-        padding: 6px 10px;
+        padding: 2px 4px;
         border: 1px solid #ffcc80;
-        border-radius: 4px;
+        border-radius: 3px;
         background-color: white;
-        font-size: 13px;
+        font-size: 11px;
       }
 
       .serial-buttons {
-        display: flex;
-        gap: 10px;
-        flex-wrap: wrap;
+        display: inline-flex;
+        gap: 6px;
+        margin-left: 10px;
       }
 
       .connect-btn {
         background-color: #4caf50;
         color: white;
-        padding: 10px 20px;
+        padding: 4px 10px;
         border: none;
-        border-radius: 4px;
+        border-radius: 3px;
         cursor: pointer;
-        font-size: 13px;
+        font-size: 11px;
         font-weight: bold;
       }
 
@@ -305,11 +310,11 @@
       .transfer-btn {
         background-color: #ff9800;
         color: white;
-        padding: 10px 20px;
+        padding: 4px 10px;
         border: none;
-        border-radius: 4px;
+        border-radius: 3px;
         cursor: pointer;
-        font-size: 13px;
+        font-size: 11px;
         font-weight: bold;
       }
 
@@ -323,20 +328,17 @@
       }
 
       .serial-status {
-        display: flex;
+        display: inline-flex;
         align-items: center;
-        gap: 8px;
-        font-size: 12px;
+        gap: 4px;
+        font-size: 11px;
         color: #666;
-        margin-top: 10px;
-        padding: 8px;
-        background-color: rgba(255, 255, 255, 0.7);
-        border-radius: 4px;
+        margin-left: 10px;
       }
 
       .status-indicator {
-        width: 10px;
-        height: 10px;
+        width: 8px;
+        height: 8px;
         border-radius: 50%;
         background-color: #ccc;
       }
@@ -362,40 +364,40 @@
       }
 
       .transfer-progress {
-        margin-top: 10px;
+        margin-top: 6px;
         display: none;
       }
 
       .progress-bar {
         width: 100%;
-        height: 20px;
+        height: 12px;
         background-color: #e0e0e0;
-        border-radius: 10px;
+        border-radius: 6px;
         overflow: hidden;
       }
 
       .progress-fill {
         height: 100%;
         background-color: #ff9800;
-        border-radius: 10px;
+        border-radius: 6px;
         transition: width 0.3s ease;
         width: 0%;
       }
 
       .progress-text {
         text-align: center;
-        font-size: 12px;
+        font-size: 10px;
         color: #666;
-        margin-top: 5px;
+        margin-top: 3px;
       }
 
       .serial-warning {
-        font-size: 11px;
+        font-size: 10px;
         color: #856404;
         background-color: #fff3cd;
-        padding: 8px 12px;
-        border-radius: 4px;
-        margin-top: 10px;
+        padding: 4px 8px;
+        border-radius: 3px;
+        margin-top: 6px;
         display: none;
       }
     </style>
@@ -763,69 +765,52 @@
         <button class="copy-btn" onclick="copyToClipboard()">
           Copy to Clipboard
         </button>
+        <div id="program-output"></div>
+      </div>
 
-        <!-- RS-232 Transfer Section -->
-        <div class="serial-section">
-          <h4>RS-232 シリアル転送</h4>
+      <!-- RS-232 Transfer Section - Below Output -->
+      <div class="serial-section">
+        <div class="serial-header">
+          <h4>RS-232 転送</h4>
           <div class="serial-config">
-            <label>
-              ボーレート:
-              <select id="baudRate">
-                <option value="4800">4800</option>
-                <option value="9600" selected>9600</option>
-                <option value="19200">19200</option>
-                <option value="38400">38400</option>
-                <option value="57600">57600</option>
-                <option value="115200">115200</option>
-              </select>
-            </label>
-            <label>
-              データビット:
-              <select id="dataBits">
-                <option value="7">7</option>
-                <option value="8" selected>8</option>
-              </select>
-            </label>
-            <label>
-              パリティ:
-              <select id="parity">
-                <option value="none" selected>なし</option>
-                <option value="even">偶数</option>
-                <option value="odd">奇数</option>
-              </select>
-            </label>
-            <label>
-              ストップビット:
-              <select id="stopBits">
-                <option value="1" selected>1</option>
-                <option value="2">2</option>
-              </select>
-            </label>
+            <label>Baud:<select id="baudRate">
+              <option value="4800">4800</option>
+              <option value="9600" selected>9600</option>
+              <option value="19200">19200</option>
+              <option value="38400">38400</option>
+            </select></label>
+            <label>Data:<select id="dataBits">
+              <option value="7">7</option>
+              <option value="8" selected>8</option>
+            </select></label>
+            <label>Parity:<select id="parity">
+              <option value="none" selected>N</option>
+              <option value="even">E</option>
+              <option value="odd">O</option>
+            </select></label>
+            <label>Stop:<select id="stopBits">
+              <option value="1" selected>1</option>
+              <option value="2">2</option>
+            </select></label>
           </div>
           <div class="serial-buttons">
-            <button class="connect-btn" id="connectBtn" onclick="toggleSerialConnection()">
-              ポート接続
-            </button>
-            <button class="transfer-btn" id="transferBtn" onclick="transferProgram()" disabled>
-              プログラム転送
-            </button>
+            <button class="connect-btn" id="connectBtn" onclick="toggleSerialConnection()">接続</button>
+            <button class="transfer-btn" id="transferBtn" onclick="transferProgram()" disabled>転送</button>
           </div>
           <div class="serial-status">
             <span class="status-indicator" id="statusIndicator"></span>
             <span id="statusText">未接続</span>
           </div>
-          <div class="transfer-progress" id="transferProgress">
-            <div class="progress-bar">
-              <div class="progress-fill" id="progressFill"></div>
-            </div>
-            <div class="progress-text" id="progressText">0%</div>
-          </div>
-          <div class="serial-warning" id="serialWarning">
-            ⚠️ Web Serial APIはChrome/Edgeブラウザでのみ動作します。HTTPSまたはlocalhostが必要です。
-          </div>
         </div>
-
-        <div id="program-output"></div>
+        <div class="transfer-progress" id="transferProgress">
+          <div class="progress-bar">
+            <div class="progress-fill" id="progressFill"></div>
+          </div>
+          <div class="progress-text" id="progressText">0%</div>
+        </div>
+        <div class="serial-warning" id="serialWarning">
+          ⚠️ Web Serial API: Chrome/Edge + HTTPS/localhost required
+        </div>
       </div>
     </div>
 
